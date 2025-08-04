@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" >
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* Song item styles */
+        .song-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            position: relative;
+            cursor: pointer;
+
+        }
+        /* Heart icon styles */
+        .heart-icon{
+            color:#888;
+            cursor:pointer;
+        }
+        /* Heart icon color when liked */
+        .heart-icon.liked{
+            color:red;
+        }
+
+        /* Order number styles */
+        .order-number {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            transition: color 0.3s;
+        }
+
+
+        /* Play icon on hover */
+
+        .song-item:hover .play-icon {
+           display:block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Playlist</h2>
+    <button class="next-button" onclick="">Next</i></button>
+    <div id="songList" class="song-list">
+        <!-- Song items will be dynamically populated here -->
+    </div>
+    <audio id="audioPlayer" controls>
+        Your browser does not support the audio element.
+    </audio>
+</div>
+
+<script>
+    colors = ["#F0F8FF","#7FFFD4", "#E6E6FA", "#FFFACD", "#E0FFFF", "#FFF0F5", "#ADD8E6", "#FAFAD2", "#FFB6C1", "#B0C4DE"];
+    // Function to create a song item
+    function createSongItem(song, index) {
+      const songItem = document.createElement('div');
+      songItem.classList.add('song-item');
+      songItem.style.backgroundColor = colors[index];
+
+      songItem.innerHTML = `
+
+        <div class="song-info">
+          <h3>${index+1}    ${song.name}  -   ${song.artist}</h3>
+
+        </div>
+        <button class="play-button" onclick="togglePlay(this, '${song.spotify_preview_url}')">
+            <i class="fas fa-play play-icon" ></i>
+        </button>
+        <i class="fas fa-heart heart-icon" onclick="toggleHeartColor(event)"></i>
+
+      `;
+      return songItem;
+    }
+
+    // Function to populate the song list
+    function populateSongList(data) {
+      const songListContainer = document.getElementById('songList');
+      data.forEach((song, index) => {
+        const songItem = createSongItem(song, index);
+        songListContainer.appendChild(songItem);
+      });
+    }
+
+    // Fetch song data and populate the song list using D3.js
+    const flaskData = JSON.parse({{songs | tojson | safe}});
+    const data = flaskData.data;
+    populateSongList(data);
+
+
+    // Function to play the selected song
+    function togglePlay(button, songUrl) {
+      const audioPlayer = document.getElementById('audioPlayer');
+      if (audioPlayer.src !== songUrl){
+        audioPlayer.src = songUrl;
+        audioPlayer.play();
+      } else{
+            if (audioPlayer.paused){
+                audioPlayer.play();
+            } else {
+                audioPlayer.pause();
+            }
+      };
+      const playIcon = button.querySelector('.play-icon');
+      playIcon.classList.toggle('fa-play');
+      playIcon.classList.toggle('fa-pause');
+    }
+
+    // Add event listener for heart icon clicks
+    function toggleHeartColor(event) {
+        const heartIcon = event.target;
+        heartIcon.classList.toggle('liked');
+    };
+
+
+</script>
+
+</body>
+</html>

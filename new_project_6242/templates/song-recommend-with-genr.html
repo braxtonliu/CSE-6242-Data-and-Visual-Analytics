@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>
+    <a class = "song" href="https://www.tutorialspoint.com"><img src="/static/images/song1.png" alt="Tutorialspoint" style="width:50px;height:60px;"></a>
+    <a class = "song" href="https://www.tutorialspoint.com"><img src="/static/images/song2.png" alt="Tutorialspoint" style="width:50px;height:60px;"></a>
+</div>
+<script>
+    var flaskData = JSON.parse({{songs | tojson | safe}});
+    var data = flaskData.data;
+    data.forEach((element) => console.log(element));
+    const songs = document.getElementsByClassName("song");
+    for (let i = 0; i < data.length; i++) {
+       songs[i].href = data[i].url;
+    }
+
+</script>
+
+</body>
+</html>

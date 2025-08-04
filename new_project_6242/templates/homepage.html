@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Songs Recommendation List</title>
+    <style>
+        /* Style for the pop-up form */
+    .popup-form {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+           /* Song item styles */
+    .song-item {
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+        position: relative;
+        cursor: pointer;
+
+    }
+
+    /* Heart icon styles */
+    .heart-icon{
+        color:#888;
+        cursor:pointer;
+    }
+    /* Heart icon color when liked */
+    .heart-icon.liked{
+        color:red;
+    }
+
+    /* Order number styles */
+    .order-number {
+        position: absolute;
+        top: 50%;
+        left: 10px;
+        transform: translateY(-50%);
+        transition: color 0.3s;
+    }
+
+
+    /* Play icon on hover */
+
+    .song-item:hover .play-icon {
+       display:block;
+    }
+
+
+    /*multi  select*/
+
+    .multiselect {
+        display: flex;
+        flex-direction: column;
+        width: 800px;
+        height: 800px;
+        margin: 20px auto;
+    }
+
+    .select-box {
+        width: 680px;
+        height: 640px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        overflow: hidden;
+        display: none;
+    }
+
+    .select {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        max-width: 600px;
+        gap: 1px;
+    }
+
+    .select__item {
+        padding: 70px;
+        cursor: pointer;
+        font-family: "Heebo", sans-serif;
+        text-align: center;
+        border-radius: 3px;
+        background: #FFA07A;
+        transition: background 0.1s;
+    }
+
+    .select__item--selected {
+        background: #009578;
+        color: #ffffff;
+    }
+    #multiSelect-submit {
+        width: 680px;
+        height: 30px;
+        padding: 0px 20px;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        background : #FFD700;
+        display:none;
+    }
+
+
+    .next-button{
+        background-color: #4CAF50;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: none;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        vertical-align: bottom;
+    }
+
+
+    #audioPlayer{
+        background-color: #4CAF50;
+        display: none;
+        padding: 0px 0px;
+        margin: 4px 2px;
+        vertical-align: bottom;
+    }
+
+    #playlist-id{
+        display: none;
+        font-size: 30px;
+        padding: 40px 0px;
+
+    }
+
+    #genre-id{
+        display: none;
+        font-size: 30px;
+        padding: 10px 0px;
+    }
+
+        /* Base styles for the button container */
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Common button styles */
+.button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background-color: #007BFF; /* Blue color for both buttons */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* Styles for the login button */
+.login-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Styles for the register button */
+.register-button {
+    background-color: #28a745; /* Green color for register */
+}
+
+.register-button:hover {
+    background-color: #1e7e34; /* Darker green on hover */
+}
+
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <span id="playlist-id" style="color: #FFA500;text-align: left;">Recommened PlayList</span>
+        <button class="next-button" id="next-button">Next 10 Songs</button>
+        <audio id="audioPlayer" controls>
+            Your browser does not support the audio element.
+        </audio>
+        <div id="songList" class="song-list">
+        <!-- Song items will be dynamically populated here -->
+        </div>
+    </div>
+    <div class="multiselect">
+        <h4 style="color: #FF0000;text-align: left;"  id="genre-id">Please select your favorite genre(s)</h4>
+        <div class="select-box" id="selectBox">
+            <select multiple id="multiSelect" class="custom-select">
+                <option value="pop">POP</option>
+                <option value="rock">ROCK</option>
+                <option value="hip-pop">HIP-POP</option>
+                <option value="jazz">JAZZ</option>
+                <option value="classical">CLASSICAL</option>>
+                <option value="blue">BLUE</option>
+                <option value="country">COUNTRY</option>
+                <option value="latin">LATIN</option>
+                <option value="metal">METAL</option>
+                <option value="rap">RAP</option>>
+                <option value="folk">FOLK</option>>
+                <option value="electronic">ELECTRONIC</option>>
+            </select>
+        </div>
+
+        <button class ="submit" id="multiSelect-submit">Submit</button>
+    </div>
+
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <script src="https://d3js.org/d3-queue.v3.min.js"></script>
+    <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+    <script src="https://d3js.org/d3-time.v1.min.js"></script>
+    <script src="https://d3js.org/d3-time-format.v2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" >
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <div class="popup-form" id="popup-form">
+        <h2>Login</h2>
+        <form id="login-form">
+            <label for="name">Username:</label>
+            <input type="text" id="name" name="name" style="text-align: right;"><br><br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" style="text-align: right;"><br><br>
+            <div class="button-container">
+            <button id="submit-button" type="button" class = "button login-button">Register</button>
+            <button id="register-button" class="button register-button">Login</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function getSessionData() {
+              const cookies = document.cookie.split(';');
+                for (const cookie of cookies) {
+                    const [cookieKey, cookieValue] = cookie.trim().split('=');
+                    if (cookieKey == '6242-song') {
+                        return cookieValue;
+                    }
+                }
+                return null;
+        }
+        var song_data = [];
+        var count = 0;
+        function setSessionData( value) {
+            document.cookie ='6242-song='+ value;
+        }
+
+        var userName = ''
+        const form = d3.select('#popup-form');
+        document.addEventListener('DOMContentLoaded', function() {
+                const name = getSessionData();
+                if(name == null){
+                    form.style('display', 'block');
+                }else{
+                    var request_data = {id:name};
+                    fetch('http://127.0.0.1:5000/recom-10-songs', {
+                            headers:{'Content-Type': 'application/json',
+                                Accept: 'application/json',
+                                'User-agent': 'learning app'},
+                            method: 'POST',
+                            body: JSON.stringify(request_data)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                            data['data'].forEach(function(element) {
+                                    song_data.push(element);
+                            });
+                            populateSongList(data['data'].slice(0,10));
+                            count = 10;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                }
+        });
+
+        const submitButton = document.getElementById("submit-button");
+        submitButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            const formData = new FormData(document.getElementById('login-form'));
+            var username = document.getElementById('name').value;
+            setSessionData(username);
+            form.style('display', 'none');
+            const selectBox = document.getElementById('selectBox');
+            selectBox.style.display = 'block';
+            const genre_id = document.getElementById('genre-id');
+            genre_id.style.display = 'block';
+            const toggleBtn = document.getElementById('multiSelect-submit');
+            toggleBtn.style.display = 'block';
+            toggleBtn.addEventListener('click', toggleSelectBox);
+        });
+
+
+        const registerButton = document.getElementById("register-button");
+        registerButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            const formData = new FormData(document.getElementById('login-form'));
+            var username = document.getElementById('name').value;
+            setSessionData(username);
+            form.style('display', 'none');
+                    var request_data = {id:username};
+                    fetch('http://127.0.0.1:5000/recom-10-songs', {
+                            headers:{'Content-Type': 'application/json',
+                                Accept: 'application/json',
+                                'User-agent': 'learning app'},
+                            method: 'POST',
+                            body: JSON.stringify(request_data)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                            data['data'].forEach(function(element) {
+                                    song_data.push(element);
+                            });
+                            populateSongList(data['data'].slice(0,10));
+                            count = 10;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+
+        });
+     const next = document.getElementById('next-button');
+     next.addEventListener('click', function(event) {
+           var next_songs = song_data.slice(count);
+           populateSongList(next_songs);
+           count += next_songs.length;
+     });
+     function toggleSelectBox() {
+            const selectBox = document.getElementById('selectBox');
+            selectBox.style.display = 'none';
+            this.style.display = 'none';
+            var selected = document.querySelectorAll(".select__item--selected")
+            var myList = [];
+            var selected_music = selected.forEach(function(element) {
+                    myList.push(element.textContent);
+            });
+            console.log(selected_music);
+            var request_data = {category:myList};
+            fetch('http://127.0.0.1:5000/recom-10-songs-new-users', {
+                            headers:{'Content-Type': 'application/json',
+                                      Accept: 'application/json',
+                                      'User-agent': 'learning app'},
+                            method: 'POST',
+                            body: JSON.stringify(request_data)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                            data['data'].forEach(function(element) {
+                                    song_data.push(element);
+                            });
+                            populateSongList(data['data'].slice(0,10));
+                            count = 10;
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+
+    }
+
+     var colors = ["#F0F8FF","#7FFFD4", "#E6E6FA", "#FFFACD", "#E0FFFF", "#FFF0F5", "#ADD8E6", "#FAFAD2", "#FFB6C1", "#B0C4DE"];
+    // Function to create a song item
+    function createSongItem(song, index) {
+      const songItem = document.createElement('div');
+      songItem.classList.add('song-item');
+      songItem.style.backgroundColor = colors[index];
+
+      songItem.innerHTML = `
+
+        <div class="song-info">
+          <h3 class="song-name">${count+index+1}    ${song.name}  -   ${song.artist}</h3>
+
+        </div>
+        <button class="play-button" onclick="togglePlay(this, '${song.spotify_preview_url}')">
+            <i class="fas fa-play play-icon" ></i>
+        </button>
+        <i class="fas fa-heart heart-icon" data-hidden-text="${song.track_id}" onclick="toggleHeartColor(event)"></i>
+
+      `;
+      return songItem;
+    }
+
+    // Function to populate the song list
+    function populateSongList(data) {
+      const songListContainer = document.getElementById('songList');
+      const audioPlayer = document.getElementById('audioPlayer');
+      audioPlayer.style.display = "inline-block";
+      const next_button = document.getElementById('next-button');
+      next_button.style.display = "inline-block";
+      const playlist = document.getElementById('playlist-id');
+      playlist.style.display = "block";
+      const genre_id = document.getElementById('genre-id');
+      genre_id.style.display = 'none';
+      data.forEach((song, index) => {
+        const songItem = createSongItem(song, index);
+        songListContainer.appendChild(songItem);
+      });
+    }
+
+    // Function to play the selected song
+    function togglePlay(button, songUrl) {
+      const audioPlayer = document.getElementById('audioPlayer');
+      if (audioPlayer.src !== songUrl){
+        audioPlayer.src = songUrl;
+        audioPlayer.play();
+      } else{
+            if (audioPlayer.paused){
+                audioPlayer.play();
+            } else {
+                audioPlayer.pause();
+            }
+      };
+      const playIcon = button.querySelector('.play-icon');
+      playIcon.classList.toggle('fa-play');
+      playIcon.classList.toggle('fa-pause');
+    }
+
+    // Add event listener for heart icon clicks
+    function toggleHeartColor(event) {
+        const heartIcon = event.target;
+        heartIcon.classList.toggle('liked');
+        const val = event.target.getAttribute('data-hidden-text');
+        const id = getSessionData();
+        request_data = {name: id, song: val};
+        fetch('http://127.0.0.1:5000/song-like', {
+                            headers:{'Content-Type': 'application/json',
+                                      Accept: 'application/json',
+                                      'User-agent': 'learning app'},
+                            method: 'POST',
+                            body: JSON.stringify(request_data)
+                    })
+                    .then(response => response.json())
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+
+    }
+    class CustomSelect {
+        constructor(originalSelect) {
+            this.originalSelect = originalSelect;
+            this.customSelect = document.createElement("div");
+            this.customSelect.id = "multi-select-id"
+            this.customSelect.classList.add("select");
+            this.originalSelect.querySelectorAll("option").forEach((optionElement) => {
+                const itemElement = document.createElement("div");
+
+                itemElement.classList.add("select__item");
+                itemElement.textContent = optionElement.textContent;
+                this.customSelect.appendChild(itemElement);
+
+                if (optionElement.selected) {
+                    this._select(itemElement);
+                }
+
+                itemElement.addEventListener("click", () => {
+                    if (this.originalSelect.multiple && itemElement.classList.contains("select__item--selected")) {
+                        this._deselect(itemElement);
+                    } else {
+                        this._select(itemElement);
+                    }
+            });
+        });
+
+    this.originalSelect.insertAdjacentElement("afterend", this.customSelect);
+    this.originalSelect.style.display = "none";
+  }
+
+  _select(itemElement) {
+    const index = Array.from(this.customSelect.children).indexOf(itemElement);
+
+    if (!this.originalSelect.multiple) {
+      this.customSelect.querySelectorAll(".select__item").forEach((el) => {
+        el.classList.remove("select__item--selected");
+      });
+    }
+
+    this.originalSelect.querySelectorAll("option")[index].selected = true;
+    itemElement.classList.add("select__item--selected");
+  }
+
+  _deselect(itemElement) {
+    const index = Array.from(this.customSelect.children).indexOf(itemElement);
+
+    this.originalSelect.querySelectorAll("option")[index].selected = false;
+    itemElement.classList.remove("select__item--selected");
+  }
+}
+
+document.querySelectorAll(".custom-select").forEach((selectElement) => {
+  new CustomSelect(selectElement);
+});
+
+    </script>
+
+</body>
+
+
+
+</html>

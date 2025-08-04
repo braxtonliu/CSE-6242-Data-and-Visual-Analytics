@@ -1,0 +1,102 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music Preference</title>
+  <style>
+    #multiSelect {
+          width: 1000px; /* Set the width of the select box */
+          height: 800px; /* Set the height of the select box */
+          background-color: #f4f4f4;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          overflow-y: scroll; /* Enable vertical scrolling if options overflow */
+    }
+
+    #multiSelect option {
+          padding: 50px 100px; /* Add padding to the options for spacing */
+          background-repeat: no-repeat; /* Prevent background image from repeating */
+          background-size: 100px; /* Set the size of the background image */
+          background-position: 100px center; /* Position the background image */
+    }
+
+    /* Example background images for options */
+    #multiSelect option[value="pop"] {
+        background-image: url('/static/images/pop.jpg'); /* Replace 'image1.jpg' with your image path */
+    }
+
+    #multiSelect option[value="rock"] {
+        background-image:  url('/static/images/rock.png'); /* Replace 'image2.jpg' with your image path */
+    }
+
+    #multiSelect option[value="hip-pop"] {
+        background-image: url('/static/images/hip-hop.jpg'); /* Replace 'image3.jpg' with your image path */
+    }
+
+    #multiSelect option[value="jazz"] {
+        background-image: url('/static/images/jazz.jpg'); /* Replace 'image3.jpg' with your image path */
+    }
+    #multiSelect option[value="classical"] {
+        background-image: url('/static/images/classical.jpg'); /* Replace 'image3.jpg' with your image path */
+    }
+
+  </style>
+</head>
+<body>
+<form id="myForm" action="submit.php" method="post">
+  <select id="multiSelect" name="selectedOptions[]" multiple>
+    <option value="pop"></option>
+    <option value="rock"></option>
+    <option value="hip-pop"></option>
+    <option value="jazz"></option>
+    <option value="classical"></option>
+  </select>
+  <button id = "submit-button" type="submit">Submit</button>
+</form>
+
+<script>
+  const submitButton = document.getElementById("submit-button");
+  submitButton.addEventListener('click', function(event) {
+    event.preventDefault();
+    var selectedOptions = [];
+    var select = document.getElementById("multiSelect");
+    for (var i = 0; i < select.options.length; i++) {
+        if (select.options[i].selected) {
+            selectedOptions.push(select.options[i].value);
+        }
+    }
+    song_recommendation(selectedOptions);
+
+  });
+
+  function song_recommendation(data) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', 'http://127.0.0.1:5000/song-recommend-with-genr', true);
+
+      // Set the Content-Type header for JSON data
+      xhr.setRequestHeader('Content-Type', 'application/json');
+
+      // Set up event handlers for success and error
+      xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                var responseData = JSON.parse(xhr.responseText);
+            } else {
+                // Request failed
+                console.error('Request failed with status:', xhr.status);
+            }
+      };
+
+      xhr.onerror = function() {
+          // Request failed due to a network error
+          console.error('Request failed');
+      };
+
+      // Send the request with JSON data in the request body
+      xhr.send(JSON.stringify({data: data }));
+  }
+
+
+</script>
+
+</body>
+</html>
