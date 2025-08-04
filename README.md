@@ -1,14 +1,11 @@
-# Song Recommendation Project
-
-### 📘 Course Information
+## CSE6242 Course Information
 
 This project was developed as the final group project for **CSE 6242: Data and Visual Analytics** at **Georgia Institute of Technology**.
 
 Course Link (Spring 2024):  
 [https://omscs.gatech.edu/cse-6242-data-and-visual-analytics](https://omscs.gatech.edu/cse-6242-data-and-visual-analytics)
 
-The course focuses on visual analytics techniques, including data wrangling, machine learning for visualization, dimensionality reduction, D3 visualizations, and large-scale data processing with Spark and Hadoop.  
-Our project applied these techniques to a real-world music recommendation system.
+The course focuses on visual analytics techniques, including data wrangling, machine learning for visualization, dimensionality reduction, D3 visualizations, and large-scale data processing with Spark and Hadoop. Our project applied these techniques to a real-world music recommendation system.
 
 
 
@@ -90,6 +87,7 @@ Contributions to the Song Recommendation Project are welcome! If you'd like to c
 - Special thanks to the open-source community for providing valuable libraries, frameworks, and tools used in this project.
 
 ---
+
 
 
 
