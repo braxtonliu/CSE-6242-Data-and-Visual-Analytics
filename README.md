@@ -1,5 +1,5 @@
-## development environment requirement
-1. make sure you already installed python3.11 and anaconda in your development environment
+## Development Environment Requirement
+1. make sure you already installed python 3.11 and anaconda in your development environment
 
 ## Getting Started
 
@@ -76,4 +76,5 @@ Contributions to the Song Recommendation Project are welcome! If you'd like to c
 - Special thanks to the open-source community for providing valuable libraries, frameworks, and tools used in this project.
 
 ---
+
 
