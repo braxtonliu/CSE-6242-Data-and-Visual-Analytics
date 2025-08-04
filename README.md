@@ -50,6 +50,15 @@ The Song Recommendation Project utilizes a combination of data processing, machi
 - **User Interaction**: Allows users to provide feedback on recommended songs, influencing future recommendations.
 - **Dynamic Updates**: Continuously updates the recommendation model based on user feedback and evolving preferences.
 
+## Notes
+
+Due to GitHub file size limits, the following files are not included in the repository:
+
+- `new_project_6242/models/model_1.pkl` (1.03GB)
+- `new_project_6242/data/User_Listening_History.csv` (574MB)
+
+Please contact the authors or refer to course resources to access the full dataset and model.
+
 
 ## Contributing
 
@@ -67,3 +76,4 @@ Contributions to the Song Recommendation Project are welcome! If you'd like to c
 - Special thanks to the open-source community for providing valuable libraries, frameworks, and tools used in this project.
 
 ---
+
